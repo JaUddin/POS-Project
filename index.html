@@ -128,9 +128,7 @@ body.prof .pnote{display:block}
 .ir2{background:var(--grbg)}.ir2 .icard-num{background:var(--grn);color:#fff}
 
 /* TAPESTRY */
-.tap-wrap{background:var(--card);border:0.5px solid var(--b);border-radius:12px;padding:.65rem .72rem}
-.tap-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:6px}
-.tap-cell{aspect-ratio:1;border-radius:1px;background:var(--linen3);transition:background .5s}
+
 
 footer{text-align:center;font-size:9px;color:var(--tx3);letter-spacing:.06em;
   margin-top:.5rem;padding-bottom:.5rem}
@@ -306,10 +304,10 @@ footer{text-align:center;font-size:9px;color:var(--tx3);letter-spacing:.06em;
     </div>
     <button class="btn o" onclick="alert('Weave draft sent to printer.')">PRINT WEAVE DRAFT</button>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="btn" style="flex:1" onclick="addTap()">ADD TO COMMUNITY TAPESTRY &nearr;</button>
+      <button class="btn" style="flex:1" onclick="addTap()">ADD TO DIGITAL ARCHIVE &nearr;</button>
       <span class="hs hr" onclick="openCard(3,1)" style="cursor:pointer">2</span>
     </div>
-    <div class="tm" id="tm">&#10003; Woven into the tapestry. Thank you.</div>
+    <div class="tm" id="tm">&#10003; Added to digital archive. Thank you.</div>
     <button class="btn o" style="font-size:9px;margin-top:3px" onclick="reset()">&larr; NEW EXCHANGE</button>
   </div>
 
@@ -322,14 +320,7 @@ footer{text-align:center;font-size:9px;color:var(--tx3);letter-spacing:.06em;
     to learn
   </div>
   <div id="cards"></div>
-  <div class="tap-wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="lbl">Community tapestry</div>
-      <span style="font-size:9px;color:var(--tx3)" id="tapcount">0 exchanges</span>
-    </div>
-    <div class="tap-grid" id="tapgrid"></div>
-    <div style="font-size:9px;color:var(--tx3);margin-top:5px;line-height:1.4">Each exchange weaves a new thread. Complete a transaction to contribute.</div>
-  </div>
+
 </div>
 
 </div><!-- /body -->
@@ -338,7 +329,7 @@ footer{text-align:center;font-size:9px;color:var(--tx3);letter-spacing:.06em;
 <footer>Tejido POS &middot; Naguabo, PR &middot; Solar-powered &middot; Offline-first &middot; Josue Osorio</footer>
 
 <script>
-let barter=false,wp=[],pt=null,profOn=false,tapCount=0,curSc=0;
+let barter=false,wp=[],pt=null,profOn=false,curSc=0;
 
 const INFO=[
   [
@@ -444,18 +435,7 @@ function drawReceipt(){
   drawWeaveEl('rw',wp,9);
 }
 
-function addTap(){
-  document.getElementById('tm').style.display='block';
-  tapCount++;
-  document.getElementById('tapcount').textContent=tapCount+' exchange'+(tapCount>1?'s':'');
-  const cells=document.querySelectorAll('.tap-cell');
-  const colors=['#2C1A0E','#C8A028','#F5E6C8'];
-  const start=Math.min((tapCount-1)*8,cells.length-8);
-  for(let i=0;i<8&&(start+i)<cells.length;i++){
-    const ci=wp.length?wp[i%wp.length]:Math.floor(Math.random()*3);
-    setTimeout(()=>cells[start+i].style.background=colors[ci],i*90);
-  }
-}
+function addTap(){document.getElementById('tm').style.display='block';}
 
 function reset(){
   barter=false;wp=[];
@@ -485,8 +465,7 @@ setInterval(()=>{
   const p=document.getElementById('spct');if(p)p.textContent=sv;
 },3500);
 
-const tg=document.getElementById('tapgrid');
-for(let i=0;i<48;i++){const d=document.createElement('div');d.className='tap-cell';tg.appendChild(d);}
+
 
 renderCards(0);
 </script>
