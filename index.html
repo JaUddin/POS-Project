@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tejido POS — Community Technology</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#2C1A0E;--linen:#FAF6EF;--linen2:#EDE3D0;--linen3:#DDD0B8;
+  --card:#FFFDF8;--b:rgba(80,50,20,0.15);--b2:rgba(80,50,20,0.3);
+  --tx:#1A0F00;--tx2:#6B4C2A;--tx3:#9C7A50;
+  --gold:#C8A028;--gbg:#FAEEDA;--gtx:#633806;
+  --grn:#3B6D11;--grbg:#EAF3DE;--grtx:#27500A;
+  --mono:'Courier New',monospace;
+}
+body{font-family:var(--mono);background:var(--linen);color:var(--tx);padding:1rem;min-height:100vh}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:0.7rem}
+
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.topbar h1{font-size:14px;letter-spacing:0.1em;color:var(--ink);text-transform:uppercase}
+.topbar p{font-size:9px;color:var(--tx3);margin-top:2px;letter-spacing:0.04em}
+.pfbtn{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;
+  padding:4px 11px;border-radius:999px;border:0.5px solid var(--b2);
+  background:transparent;color:var(--tx2);cursor:pointer;transition:all .2s}
+.pfbtn.on{background:var(--ink);color:#F5E6C8;border-color:var(--ink)}
+
+.pills{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;
+  padding:5px 13px;border-radius:999px;border:0.5px solid var(--b2);
+  background:transparent;color:var(--tx2);cursor:pointer;transition:all .2s}
+.pill.on{background:var(--ink);color:#F5E6C8;border-color:var(--ink)}
+.pill.done{border-color:var(--grn);color:var(--grn)}
+
+.body{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:12px;align-items:start}
+@media(max-width:560px){.body{grid-template-columns:1fr}}
+
+.device{background:var(--linen2);border:1.5px solid var(--b2);border-radius:18px;
+  padding:1.1rem;display:flex;flex-direction:column;gap:0.72rem;min-height:520px}
+
+.sc{display:none;flex-direction:column;gap:0.72rem;flex:1}
+.sc.on{display:flex}
+
+.slbl{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--tx3);
+  border-bottom:0.5px solid var(--b);padding-bottom:0.32rem}
+
+.sbar{background:var(--ink);color:#F5E6C8;border-radius:9px;padding:0.44rem 0.85rem;
+  font-size:10px;letter-spacing:0.05em;display:flex;justify-content:space-between}
+
+.card{background:var(--card);border:0.5px solid var(--b);border-radius:12px;
+  padding:0.78rem 0.88rem;transition:border-color .2s;cursor:pointer}
+.card:hover{border-color:var(--b2)}
+
+.lbl{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--tx3)}
+.val{font-size:20px;font-weight:bold;color:var(--tx);margin-top:2px}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mb{background:var(--linen2);border-radius:9px;padding:0.58rem 0.72rem}
+.mb .n{font-size:18px;font-weight:bold}
+.sbar2{background:var(--linen3);border-radius:999px;height:6px;overflow:hidden;margin-top:5px}
+.sf{height:100%;background:var(--gold);border-radius:999px;transition:width 1.2s ease}
+.badge{font-size:9px;padding:2px 7px;border-radius:999px;letter-spacing:.03em}
+.bg{background:var(--grbg);color:var(--grtx)}
+
+.il{border-bottom:0.5px solid var(--b);padding:0.5rem 0}.il:last-child{border-bottom:none}
+.ir{display:flex;justify-content:space-between;font-size:11px;font-weight:bold}
+.og{font-size:9px;color:var(--tx3);margin-top:1px}
+.cred{color:var(--grn)}
+
+.wg{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;width:130px;margin:0 auto}
+.wq{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;width:90px;margin:0.4rem auto}
+.wc{aspect-ratio:1;border-radius:2px;transition:background .45s}
+
+.btn{background:var(--ink);color:#F5E6C8;border:none;border-radius:9px;
+  padding:0.64rem 0.88rem;font-family:var(--mono);font-size:10px;letter-spacing:.07em;
+  cursor:pointer;width:100%;text-transform:uppercase;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.86}.btn:active{transform:scale(.98)}
+.btn.o{background:transparent;color:var(--tx);border:0.5px solid var(--b2)}
+.btn.o:hover{background:var(--linen3)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.brow{display:flex;gap:7px}.brow .btn{flex:1;font-size:9px;padding:.5rem .4rem}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:0 .2rem}
+
+.dlist{font-size:10px;color:var(--tx2);line-height:2.1}
+.dlist div::before{content:'> ';color:var(--tx3)}
+.cbox{background:var(--grbg);border:0.5px solid var(--grn);border-radius:9px;
+  padding:.54rem .82rem;display:flex;align-items:center;gap:7px;font-size:10px;color:var(--grtx)}
+
+.rbox{border:0.5px dashed var(--b2);border-radius:10px;padding:.88rem;text-align:center}
+.dsep{border:none;border-top:0.5px dashed var(--b2);margin:.58rem 0}
+.rr{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
+.pw{text-align:center;font-size:10px;color:var(--tx3);padding:.35rem}
+.tm{display:none;text-align:center;font-size:10px;color:var(--grn);padding:.4rem}
+
+/* HOTSPOT */
+.hs{display:inline-flex;align-items:center;justify-content:center;
+  width:17px;height:17px;border-radius:50%;font-size:8px;font-weight:bold;
+  cursor:pointer;flex-shrink:0;border:1.5px solid currentColor;
+  animation:pu 2.2s ease-in-out infinite;transition:transform .15s;user-select:none}
+.hs:hover{transform:scale(1.3);animation:none}
+.hs:active{transform:scale(.92)}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.88)}}
+.hg{color:var(--gtx);background:var(--gbg)}
+.hk{color:#F5E6C8;background:var(--ink)}
+.hr{color:var(--grtx);background:var(--grbg)}
+
+/* PROFESSOR NOTES */
+.pnote{display:none;font-size:9px;color:var(--gtx);background:var(--gbg);
+  border-radius:6px;padding:4px 8px;margin-top:5px;line-height:1.5;letter-spacing:.02em}
+body.prof .pnote{display:block}
+
+/* SIDE PANEL */
+.side{display:flex;flex-direction:column;gap:9px}
+.side-lbl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding-left:2px}
+
+.icard{border-radius:12px;border:0.5px solid transparent;overflow:hidden;
+  transition:all .22s;cursor:pointer;opacity:.54}
+.icard.open{opacity:1;border-color:var(--b2)}
+.icard-head{display:flex;align-items:center;gap:7px;padding:0.66rem 0.75rem}
+.icard-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:9px;font-weight:bold;flex-shrink:0}
+.icard-title{font-size:10px;font-weight:bold;letter-spacing:.03em;flex:1}
+.icard-arrow{font-size:9px;color:var(--tx3);transition:transform .2s}
+.icard.open .icard-arrow{transform:rotate(90deg)}
+.icard-body{font-size:10px;line-height:1.6;color:var(--tx2);
+  max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.icard.open .icard-body{max-height:220px;padding:0 0.75rem 0.78rem}
+.ig{background:var(--gbg)}.ig .icard-num{background:var(--gold);color:var(--gtx)}
+.ik{background:var(--linen3)}.ik .icard-num{background:var(--ink);color:#F5E6C8}
+.ir2{background:var(--grbg)}.ir2 .icard-num{background:var(--grn);color:#fff}
+
+/* TAPESTRY */
+.tap-wrap{background:var(--card);border:0.5px solid var(--b);border-radius:12px;padding:.65rem .72rem}
+.tap-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:6px}
+.tap-cell{aspect-ratio:1;border-radius:1px;background:var(--linen3);transition:background .5s}
+
+footer{text-align:center;font-size:9px;color:var(--tx3);letter-spacing:.06em;
+  margin-top:.5rem;padding-bottom:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div>
+    <h1>Tejido POS</h1>
+    <p>Josue Osorio — Community Technology Demo</p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+    <button class="pfbtn" id="pfbtn" onclick="toggleProf()">PROFESSOR MODE</button>
+    <div style="font-size:8px;color:var(--tx3);text-align:right" id="pfhint">Toggle for design annotations</div>
+  </div>
+</div>
+
+<div class="pills">
+  <button class="pill on" onclick="goTo(0)">&#9312; Idle</button>
+  <button class="pill"    onclick="goTo(1)">&#9313; Cart</button>
+  <button class="pill"    onclick="goTo(2)">&#9314; Weaving</button>
+  <button class="pill"    onclick="goTo(3)">&#9315; Receipt</button>
+</div>
+
+<div class="body">
+
+<div class="device">
+
+  <!-- IDLE -->
+  <div class="sc on" id="s0">
+    <div class="slbl">Screen 1 — Idle dashboard</div>
+    <div class="sbar"><span>STATUS: ACTIVE</span><span id="clk">—</span></div>
+
+    <div class="card" onclick="openCard(0,0)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8A028" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        </svg>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:bold;display:flex;align-items:center;gap:5px">
+            SOLAR STORAGE: <span id="spct">89</span>% <span class="hs hg">1</span>
+          </div>
+          <div class="sbar2"><div class="sf" id="sfill" style="width:89%"></div></div>
+        </div>
+        <span class="badge bg">OFF-GRID</span>
+      </div>
+      <div class="lbl">Running independently of grid</div>
+      <div class="pnote">Design intent: Puerto Rico's grid fails in disasters. Solar-first means the market never stops — this is infrastructural sovereignty, not just sustainability.</div>
+    </div>
+
+    <div class="card" onclick="openCard(0,1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <div class="lbl">LOCAL ECONOMIC VELOCITY (Today)</div>
+        <span class="hs hk">2</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="42" height="42" viewBox="0 0 42 42">
+          <circle cx="21" cy="21" r="15" fill="none" stroke="#DDD0B8" stroke-width="5"/>
+          <path d="M21 6 A15 15 0 1 1 6 21" fill="none" stroke="#C8A028" stroke-width="5" stroke-linecap="round"/>
+          <text x="21" y="25" text-anchor="middle" font-size="10" fill="#2C1A0E" font-family="Courier New">&#8635;</text>
+        </svg>
+        <div><div class="val">$2,673</div><div class="lbl">Circulated within 10 miles</div></div>
+      </div>
+      <div class="pnote">Design intent: Standard POS tracks profit for corporate HQs. Tejido measures money that stays within 10 miles — a metric designed for community wealth, not extraction.</div>
+    </div>
+
+    <div class="card" onclick="openCard(0,2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+        <div class="lbl">COMMUNITY IMPACT</div><span class="hs hr">3</span>
+      </div>
+      <div class="mg">
+        <div class="mb"><div class="n">3</div><div class="lbl">Local producers</div></div>
+        <div class="mb"><div class="n">1</div><div class="lbl">Artisan weaver</div></div>
+      </div>
+      <div class="pnote">Design intent: The idle screen is a community bulletin board — before any transaction, you see the human network: 3 producers, 1 artisan weaver.</div>
+    </div>
+
+    <button class="btn" onclick="goTo(1)">BEGIN EXCHANGE &rarr;</button>
+  </div>
+
+  <!-- CART -->
+  <div class="sc" id="s1">
+    <div class="slbl">Screen 2 — Conscious cart</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="btn o" style="width:auto;padding:.38rem .62rem;font-size:9px" onclick="goTo(0)">&larr; BACK</button>
+      <div style="flex:1;background:var(--linen3);border-radius:8px;padding:.38rem .65rem;font-size:10px;color:var(--tx2)">CUSTOMER: #JOSUE0</div>
+    </div>
+    <div class="card" style="flex:1" onclick="openCard(1,0)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div class="lbl">ITEMS</div><span class="hs hg">1</span>
+      </div>
+      <div id="ci">
+        <div class="il"><div class="ir"><span>MOFONGO (TRADICIONAL)</span><span>$12.00</span></div><div class="og">&#8627; Naguabo Community Farm</div></div>
+        <div class="il"><div class="ir"><span>CAFE CON LECHE (8oz)</span><span>$4.50</span></div><div class="og">&#8627; Hacienda San Pedro, Jayuya</div></div>
+        <div class="il"><div class="ir"><span>HANDCRAFTED SOAP</span><span>$6.00</span></div><div class="og">&#8627; Humacao</div></div>
+        <div class="il" id="bl" style="display:none"><div class="ir"><span>LABOR CREDIT</span><span class="cred">-$5.00</span></div><div class="og">&#8627; Community time exchange</div></div>
+      </div>
+      <div class="pnote">Every item lists its origin and maker. Buying is reframed as a relational act — you're not purchasing soap, you're supporting someone in Humacao.</div>
+    </div>
+    <div class="brow">
+      <button class="btn o" id="bbtn" onclick="addBarter()" style="display:flex;align-items:center;justify-content:center;gap:5px">
+        + ADD TRADE / LABOR <span class="hs hr" style="animation:none">2</span>
+      </button>
+      <button class="btn o" disabled>+ ADD ITEM</button>
+    </div>
+    <div class="pnote" id="bpn" style="display:none">Design intent: Colonial commerce required cash only. Tejido accepts trade, labor, and community credits — honoring value systems that predate the cash economy.</div>
+    <div class="trow">
+      <span class="lbl">TOTAL VALUE</span>
+      <span style="font-size:16px;font-weight:bold" id="tv">$22.50</span>
+    </div>
+    <button class="btn" onclick="goTo(2)">PROCEED TO WEAVING &rarr;</button>
+  </div>
+
+  <!-- PROCESSING -->
+  <div class="sc" id="s2">
+    <div class="slbl">Screen 3 — Weaving / processing</div>
+    <div class="sbar"><span>WEAVING TRANSACTION...</span><span id="pt">—</span></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.78rem;text-align:center;cursor:default">
+      <div style="display:flex;gap:5px;align-self:flex-end">
+        <span class="hs hg" onclick="openCard(2,0)" style="cursor:pointer">1</span>
+        <span class="hs hr" onclick="openCard(2,1)" style="cursor:pointer">2</span>
+      </div>
+      <div class="wg" id="wg"></div>
+      <div style="text-align:left;width:100%">
+        <div class="lbl" style="margin-bottom:4px">Integrating data points:</div>
+        <div class="dlist">
+          <div>Time: <span id="ptd">—</span></div>
+          <div>Location: Naguabo Plaza M&eacute;ndez</div>
+          <div>Value exchange: <span id="ptv">$22.50</span></div>
+          <div>Items: 3 local origin</div>
+        </div>
+      </div>
+      <div class="cbox">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div style="font-size:10px;font-weight:bold;letter-spacing:.04em">OFFLINE-FIRST CONFIRMATION</div>
+          <div class="lbl">Data secured locally. No external ping.</div>
+        </div>
+      </div>
+      <div class="pnote" style="width:100%;text-align:left">The loading animation is a growing textile pattern from your transaction data. Computation becomes craft — time, location, and value become a unique woven draft.</div>
+    </div>
+    <div class="pw" id="pw">Completing weave...</div>
+    <div id="pb" style="display:none"><button class="btn" onclick="goTo(3)">VIEW RECEIPT &rarr;</button></div>
+  </div>
+
+  <!-- RECEIPT -->
+  <div class="sc" id="s3">
+    <div class="slbl">Screen 4 — Receipt</div>
+    <div class="rbox">
+      <div style="font-size:11px;font-weight:bold;letter-spacing:.07em">NAGUABO PLAZA MENDEZ</div>
+      <div class="lbl" style="margin-top:2px">10:46 AM | ID: 80829A</div>
+      <hr class="dsep">
+      <div class="rr"><span>Mofongo (Tradicional)</span><span>$12.00</span></div>
+      <div class="rr"><span>Cafe con Leche (8oz)</span><span>$4.50</span></div>
+      <div class="rr"><span>Handcrafted Soap</span><span>$6.00</span></div>
+      <div class="rr cred" id="brl" style="display:none"><span>Labor Credit</span><span>-$5.00</span></div>
+      <hr class="dsep">
+      <div class="rr" style="font-weight:bold"><span>TOTAL</span><span id="rt">$22.50</span></div>
+      <hr class="dsep">
+      <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px">
+        <div class="lbl">YOUR UNIQUE WEAVE DRAFT</div>
+        <span class="hs hg" onclick="openCard(3,0)" style="cursor:pointer">1</span>
+      </div>
+      <div class="wq" id="rw"></div>
+      <div class="pnote">The receipt IS the artifact. This woven pattern is unique to this exact transaction. Bring it to a partnered artisan to weave into a physical object — bracelet, patch, or bookmark.</div>
+      <hr class="dsep">
+      <div style="font-size:9px;color:var(--tx3);text-align:left;line-height:1.5">INSTRUCTION: Bring this draft to a local partnered artisan to exchange for physical memory.</div>
+    </div>
+    <button class="btn o" onclick="alert('Weave draft sent to printer.')">PRINT WEAVE DRAFT</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="btn" style="flex:1" onclick="addTap()">ADD TO COMMUNITY TAPESTRY &nearr;</button>
+      <span class="hs hr" onclick="openCard(3,1)" style="cursor:pointer">2</span>
+    </div>
+    <div class="tm" id="tm">&#10003; Woven into the tapestry. Thank you.</div>
+    <button class="btn o" style="font-size:9px;margin-top:3px" onclick="reset()">&larr; NEW EXCHANGE</button>
+  </div>
+
+</div><!-- /device -->
+
+<!-- SIDE -->
+<div class="side">
+  <div class="side-lbl">Tap a
+    <span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:var(--gbg);color:var(--gtx);font-size:8px;text-align:center;line-height:12px;border:1px solid var(--gtx)">1</span>
+    to learn
+  </div>
+  <div id="cards"></div>
+  <div class="tap-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="lbl">Community tapestry</div>
+      <span style="font-size:9px;color:var(--tx3)" id="tapcount">0 exchanges</span>
+    </div>
+    <div class="tap-grid" id="tapgrid"></div>
+    <div style="font-size:9px;color:var(--tx3);margin-top:5px;line-height:1.4">Each exchange weaves a new thread. Complete a transaction to contribute.</div>
+  </div>
+</div>
+
+</div><!-- /body -->
+</div><!-- /wrap -->
+
+<footer>Tejido POS &middot; Naguabo, PR &middot; Solar-powered &middot; Offline-first &middot; Josue Osorio</footer>
+
+<script>
+let barter=false,wp=[],pt=null,profOn=false,tapCount=0,curSc=0;
+
+const INFO=[
+  [
+    {t:'Solar-powered sovereignty',b:'Puerto Rico\'s grid is fragile — Hurricane Maria left many without power for months. Tejido runs on solar with battery backup, operating fully off-grid. This isn\'t just green design: it\'s infrastructural resistance.',c:'ig'},
+    {t:'Local economic velocity',b:'Standard POS systems track sales for corporate HQs. Tejido instead measures how much money stays within 10 miles — a metric rooted in community wealth-building, not extraction.',c:'ik'},
+    {t:'Community impact metrics',b:'Before any transaction, you see the human network behind today\'s commerce: 3 producers, 1 artisan. The idle screen isn\'t dead space — it\'s a community bulletin board.',c:'ir2'},
+  ],
+  [
+    {t:'Origin makes it relational',b:'Every item lists who made it and where. Buying is reframed — you\'re not purchasing soap, you\'re supporting someone in Humacao.',c:'ig'},
+    {t:'Barter & labor credits',b:'Colonial commerce required cash only. Tejido accepts trade, labor, and community credits — honoring value systems that predate and resist the cash economy.',c:'ir2'},
+  ],
+  [
+    {t:'Transaction → textile',b:'The loading animation is a woven draft generated from your transaction data. Time, location, and value become a pattern. Computation becomes craft.',c:'ig'},
+    {t:'Offline-first by design',b:'No cloud ping. Data confirmed locally first. Works during outages, after disasters — and without surveillance from external tech platforms.',c:'ir2'},
+  ],
+  [
+    {t:'Receipt as cultural artifact',b:'Your weave draft is unique to this exact transaction. Bring it to a partnered artisan — they\'ll weave it into a bracelet, patch, or bookmark. The receipt becomes memory.',c:'ig'},
+    {t:'The community tapestry',b:'Every added transaction builds a collective data artwork — an archive, an artwork, and an economic record all woven together.',c:'ir2'},
+  ],
+];
+
+function renderCards(sc){
+  const el=document.getElementById('cards');el.innerHTML='';
+  (INFO[sc]||[]).forEach((d,i)=>{
+    const div=document.createElement('div');
+    div.className='icard '+d.c;div.id='ic'+i;
+    div.innerHTML='<div class="icard-head" onclick="toggleCard('+i+')"><div class="icard-num">'+(i+1)+'</div><div class="icard-title">'+d.t+'</div><div class="icard-arrow">&#9658;</div></div><div class="icard-body">'+d.b+'</div>';
+    el.appendChild(div);
+  });
+}
+
+function toggleCard(i){
+  const c=document.getElementById('ic'+i),was=c.classList.contains('open');
+  document.querySelectorAll('.icard').forEach(x=>x.classList.remove('open'));
+  if(!was)c.classList.add('open');
+}
+
+function openCard(sc,i){
+  if(sc!==curSc)return;
+  document.querySelectorAll('.icard').forEach(x=>x.classList.remove('open'));
+  const c=document.getElementById('ic'+i);
+  if(c){c.classList.add('open');c.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+
+function goTo(n){
+  curSc=n;
+  document.querySelectorAll('.sc').forEach((s,i)=>s.classList.toggle('on',i===n));
+  document.querySelectorAll('.pill').forEach((p,i)=>{
+    p.classList.toggle('on',i===n);
+    if(i<n)p.classList.add('done');else if(i!==n)p.classList.remove('done');
+  });
+  renderCards(n);
+  if(n===2)startProc();
+  if(n===3)drawReceipt();
+}
+
+function toggleProf(){
+  profOn=!profOn;
+  document.body.classList.toggle('prof',profOn);
+  document.getElementById('pfbtn').classList.toggle('on',profOn);
+  document.getElementById('pfhint').textContent=profOn?'Professor mode ON — design rationale visible':'Toggle for design annotations';
+  document.getElementById('bpn').style.display=(profOn&&barter)?'block':'none';
+}
+
+function genWeave(seed){
+  let s=seed>>>0,p=[];
+  for(let i=0;i<64;i++){s=(Math.imul(s,1664525)+1013904223)>>>0;p.push(s%3);}
+  return p;
+}
+
+function drawWeaveEl(id,p,h){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML='';
+  const c=['#2C1A0E','#C8A028','#F5E6C8'];
+  p.forEach(v=>{
+    const d=document.createElement('div');
+    d.className='wc';d.style.background='var(--linen3)';el.appendChild(d);
+    setTimeout(()=>d.style.background=c[v],Math.random()*700);
+  });
+}
+
+function addBarter(){
+  if(barter)return;barter=true;
+  document.getElementById('bl').style.display='block';
+  const b=document.getElementById('bbtn');
+  b.disabled=true;b.innerHTML='&#10003; TRADE ADDED';
+  ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$17.50';});
+  document.getElementById('brl').style.display='flex';
+  if(profOn)document.getElementById('bpn').style.display='block';
+}
+
+function startProc(){
+  wp=genWeave(Date.now());
+  drawWeaveEl('wg',wp,13);
+  document.getElementById('pb').style.display='none';
+  document.getElementById('pw').style.display='block';
+  clearTimeout(pt);
+  pt=setTimeout(()=>{document.getElementById('pb').style.display='block';document.getElementById('pw').style.display='none';},2400);
+}
+
+function drawReceipt(){
+  if(!wp.length)wp=genWeave(Date.now());
+  drawWeaveEl('rw',wp,9);
+}
+
+function addTap(){
+  document.getElementById('tm').style.display='block';
+  tapCount++;
+  document.getElementById('tapcount').textContent=tapCount+' exchange'+(tapCount>1?'s':'');
+  const cells=document.querySelectorAll('.tap-cell');
+  const colors=['#2C1A0E','#C8A028','#F5E6C8'];
+  const start=Math.min((tapCount-1)*8,cells.length-8);
+  for(let i=0;i<8&&(start+i)<cells.length;i++){
+    const ci=wp.length?wp[i%wp.length]:Math.floor(Math.random()*3);
+    setTimeout(()=>cells[start+i].style.background=colors[ci],i*90);
+  }
+}
+
+function reset(){
+  barter=false;wp=[];
+  document.getElementById('bl').style.display='none';
+  const b=document.getElementById('bbtn');
+  b.disabled=false;
+  b.innerHTML='+ ADD TRADE / LABOR <span class="hs hr" style="animation:none">2</span>';
+  ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$22.50';});
+  document.getElementById('brl').style.display='none';
+  document.getElementById('tm').style.display='none';
+  document.getElementById('bpn').style.display='none';
+  goTo(0);
+}
+
+function tick(){
+  const n=new Date(),h=n.getHours(),m=String(n.getMinutes()).padStart(2,'0'),a=h>=12?'PM':'AM';
+  const t=(h%12||12)+':'+m+' '+a;
+  const clk=document.getElementById('clk');if(clk)clk.textContent=t+' | NAGUABO, PR';
+  ['pt','ptd'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t;});
+}
+tick();setInterval(tick,30000);
+
+let sv=89;
+setInterval(()=>{
+  sv=Math.max(73,Math.min(99,sv+(Math.random()>.5?1:-1)));
+  const f=document.getElementById('sfill');if(f)f.style.width=sv+'%';
+  const p=document.getElementById('spct');if(p)p.textContent=sv;
+},3500);
+
+const tg=document.getElementById('tapgrid');
+for(let i=0;i<48;i++){const d=document.createElement('div');d.className='tap-cell';tg.appendChild(d);}
+
+renderCards(0);
+</script>
+</body>
+</html>
