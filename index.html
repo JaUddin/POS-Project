@@ -468,9 +468,15 @@ function applyBarter(){
   b.disabled=true;b.innerHTML='&#10003; '+label.toUpperCase()+' ADDED';
   const newTotal=(22.50-amt).toFixed(2);
   ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$'+newTotal;});
-  document.getElementById('brl').style.display='flex';
-  document.getElementById('brl').querySelector('span:first-child').textContent=label;
-  document.getElementById('brl').querySelector('span:last-child').textContent='-$'+amt.toFixed(2);
+  const brl=document.getElementById('brl');
+  brl.style.display='flex';
+  brl.querySelector('span:first-child').textContent=label;
+  brl.querySelector('span:last-child').textContent='-$'+amt.toFixed(2);
+  // also update the cart line item amount
+  const blSpan=document.querySelector('#bl .ir span:last-child');
+  if(blSpan)blSpan.textContent='-$'+amt.toFixed(2);
+  const blLabel=document.querySelector('#bl .ir span:first-child');
+  if(blLabel)blLabel.textContent=label.toUpperCase();
 }
 
 function startProc(){
