@@ -39,19 +39,19 @@ body{font-family:var(--mono);background:var(--linen);color:var(--tx);
 /* MAIN AREA */
 .main{
   flex:1;display:grid;
-  grid-template-columns:1fr 340px;
+  grid-template-columns:1fr 360px;
   overflow:hidden;
 }
 
 /* LEFT: DEVICE */
 .device-wrap{
-  display:flex;align-items:center;justify-content:center;
-  padding:2rem;background:var(--linen);overflow-y:auto;
+  display:flex;align-items:stretch;
+  padding:0;background:var(--linen2);overflow-y:auto;
 }
 .device{
-  background:var(--linen2);border:1.5px solid var(--b2);border-radius:22px;
-  padding:1.5rem;display:flex;flex-direction:column;gap:0.85rem;
-  width:100%;max-width:520px;min-height:560px;
+  background:var(--linen2);border:none;border-radius:0;
+  padding:2rem 3rem;display:flex;flex-direction:column;gap:0.85rem;
+  width:100%;max-width:700px;margin:0 auto;min-height:100%;
 }
 
 /* RIGHT: PANEL */
