@@ -125,6 +125,9 @@ body{font-family:var(--mono);background:var(--linen);color:var(--tx);
 .rr{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
 .pw{text-align:center;font-size:11px;color:var(--tx3);padding:.4rem}
 .tm{display:none;text-align:center;font-size:11px;color:var(--grn);padding:.4rem}
+.ctype-btn{font-family:var(--mono);font-size:10px;padding:5px 10px;border-radius:999px;
+  border:0.5px solid var(--b2);background:var(--card);color:var(--tx2);cursor:pointer;transition:all .18s}
+.ctype-btn.sel{background:var(--ink);color:#F5E6C8;border-color:var(--ink)}
 
 /* HOTSPOT */
 .hs{display:inline-flex;align-items:center;justify-content:center;
@@ -255,11 +258,27 @@ body{font-family:var(--mono);background:var(--linen);color:var(--tx);
           <div class="il" id="bl" style="display:none"><div class="ir"><span>LABOR CREDIT</span><span class="cred">-$5.00</span></div><div class="og">&#8627; Community time exchange</div></div>
         </div>
       </div>
-      <div class="brow">
-        <button class="btn o" id="bbtn" onclick="addBarter()" style="display:flex;align-items:center;justify-content:center;gap:6px">
-          + ADD TRADE / LABOR <span class="hs hr" style="animation:none">2</span>
-        </button>
-        <button class="btn o" disabled>+ ADD ITEM</button>
+      <div id="barterArea">
+        <div class="brow">
+          <button class="btn o" id="bbtn" onclick="showBarterForm()" style="display:flex;align-items:center;justify-content:center;gap:6px">
+            + ADD CREDIT / TRADE <span class="hs hr" style="animation:none">2</span>
+          </button>
+          <button class="btn o" disabled>+ ADD ITEM</button>
+        </div>
+        <div id="barterForm" style="display:none;background:var(--linen3);border-radius:12px;padding:0.85rem;margin-top:6px;display:none;flex-direction:column;gap:8px">
+          <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:2px">Select credit type</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="creditTypes">
+            <button class="ctype-btn" onclick="selectType(this,'Labor Credit')">Labor Credit</button>
+            <button class="ctype-btn" onclick="selectType(this,'Trade Credit')">Trade Credit</button>
+            <button class="ctype-btn" onclick="selectType(this,'Time Credit')">Time Credit</button>
+            <button class="ctype-btn" onclick="selectType(this,'other')">Other</button>
+          </div>
+          <input id="customType" placeholder="Describe the credit..." style="display:none;font-family:var(--mono);font-size:11px;padding:6px 10px;border-radius:8px;border:0.5px solid var(--b2);background:var(--card);color:var(--tx);width:100%"/>
+          <div style="display:flex;gap:6px">
+            <input id="creditAmt" type="number" placeholder="Amount ($)" min="0" step="0.50" style="font-family:var(--mono);font-size:11px;padding:6px 10px;border-radius:8px;border:0.5px solid var(--b2);background:var(--card);color:var(--tx);flex:1"/>
+            <button class="btn" style="width:auto;padding:0.5rem 1rem;font-size:10px" onclick="applyBarter()">APPLY</button>
+          </div>
+        </div>
       </div>
       <div class="trow">
         <span class="lbl">TOTAL VALUE</span>
@@ -304,7 +323,7 @@ body{font-family:var(--mono);background:var(--linen);color:var(--tx);
       <div class="slbl">Screen 4 &mdash; Receipt</div>
       <div class="rbox">
         <div style="font-size:12px;font-weight:bold;letter-spacing:.07em">NAGUABO PLAZA MENDEZ</div>
-        <div class="lbl" style="margin-top:2px">10:46 AM | ID: 80829A</div>
+        <div class="lbl" style="margin-top:2px"><span id="rtime">--:-- --</span> | ID: 80829A</div>
         <hr class="dsep">
         <div class="rr"><span>Mofongo (Tradicional)</span><span>$12.00</span></div>
         <div class="rr"><span>Cafe con Leche (8oz)</span><span>$4.50</span></div>
@@ -420,13 +439,38 @@ function drawWeaveEl(id,p,h){
   });
 }
 
-function addBarter(){
-  if(barter)return;barter=true;
+let selectedType='',customAmt=0;
+
+function showBarterForm(){
+  const f=document.getElementById('barterForm');
+  f.style.display=f.style.display==='none'?'flex':'none';
+}
+
+function selectType(btn,type){
+  document.querySelectorAll('.ctype-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedType=type;
+  const ci=document.getElementById('customType');
+  ci.style.display=type==='other'?'block':'none';
+  if(type!=='other')ci.value='';
+}
+
+function applyBarter(){
+  if(barter)return;
+  const amtEl=document.getElementById('creditAmt');
+  const amt=parseFloat(amtEl.value)||5;
+  const label=selectedType==='other'?(document.getElementById('customType').value||'Custom Credit'):selectedType||'Labor Credit';
+  barter=true;
+  document.getElementById('barterForm').style.display='none';
   document.getElementById('bl').style.display='block';
+  document.getElementById('bl').querySelector('.ir span:first-child').textContent=label.toUpperCase();
   const b=document.getElementById('bbtn');
-  b.disabled=true;b.innerHTML='&#10003; TRADE ADDED';
-  ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$17.50';});
+  b.disabled=true;b.innerHTML='&#10003; '+label.toUpperCase()+' ADDED';
+  const newTotal=(22.50-amt).toFixed(2);
+  ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$'+newTotal;});
   document.getElementById('brl').style.display='flex';
+  document.getElementById('brl').querySelector('span:first-child').textContent=label;
+  document.getElementById('brl').querySelector('span:last-child').textContent='-$'+amt.toFixed(2);
 }
 
 function startProc(){
@@ -441,6 +485,9 @@ function startProc(){
 function drawReceipt(){
   if(!wp.length)wp=genWeave(Date.now());
   drawWeaveEl('rw',wp,10);
+  const n=new Date(),h=n.getHours(),m=String(n.getMinutes()).padStart(2,'0'),a=h>=12?'PM':'AM';
+  const el=document.getElementById('rtime');
+  if(el)el.textContent=(h%12||12)+':'+m+' '+a;
 }
 
 function addTap(){document.getElementById('tm').style.display='block';}
@@ -450,7 +497,12 @@ function reset(){
   document.getElementById('bl').style.display='none';
   const b=document.getElementById('bbtn');
   b.disabled=false;
-  b.innerHTML='+ ADD TRADE / LABOR <span class="hs hr" style="animation:none">2</span>';
+  b.innerHTML='+ ADD CREDIT / TRADE <span class="hs hr" style="animation:none">2</span>';
+  document.getElementById('barterForm').style.display='none';
+  document.getElementById('customType').style.display='none';
+  document.getElementById('creditAmt').value='';
+  document.querySelectorAll('.ctype-btn').forEach(b=>b.classList.remove('sel'));
+  selectedType='';
   ['tv','ptv','rt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$22.50';});
   document.getElementById('brl').style.display='none';
   document.getElementById('tm').style.display='none';
